@@ -1,0 +1,27 @@
+Salida de consola de la primera ejecucion de restore_test.ps1 (2026-10-18, inicio 11:14:12).
+Transcripta del texto que Mariano copio de la consola; la consola no se guardo en archivo y el error no queda en el log.
+
+PS ...\TP-Unidad6-BD2> powershell -ExecutionPolicy Bypass -File .\restore_test.ps1; $LASTEXITCODE
+No se puede llamar a un metodo en una expresion con valor NULL.
+En ...\restore_test.ps1: 152 Caracter: 1
++ $existeBase = (([string]$resultadoExiste).Trim() -eq "1")
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+
+Archivo usado: ...\backups\foodstore_20261018_094932.dump
+RTO observado: 5,51 segundos
+RPO observado: 1,41 horas
+Conteo categoria: 6
+Conteo usuario: 20006
+Conteo producto: 50016
+Conteo pedido: 200006
+Conteo detalle_pedido: 400013
+productos_invalidos: 0
+detalles_invalidos: 0
+RESULTADO: OK - Restauracion en foodstore_restore_test
+0
+
+Correccion aplicada (linea 152):
+  antes:   $existeBase = (([string]$resultadoExiste).Trim() -eq "1")
+  despues: $existeBase = ("$resultadoExiste".Trim() -eq "1")
