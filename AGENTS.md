@@ -71,8 +71,12 @@ food-store-tp-u6/
 ├── restore_test.ps1          (opcional)
 ├── informe_u6.pdf
 ├── evidencias/               salidas, tamaños, tiempos, copias de logs
+│   └── datos_para_informe.md   datos del simulacro que completa Mariano
+├── bitacoras/                una bitácora personal por integrante (se unifican al final)
+├── BITACORA.md               bitácora unificada (se arma al cerrar el trabajo)
+├── DIVISION_DE_TRABAJO.md    quién hace qué y quién depende de quién
 ├── base_heredada/            los 10 .sql de Food Store (U1–U4), sin modificar
-├── AGENTS.md  protocolo_seguridad.md  README.md
+├── AGENTS.md  README.md
 └── .kiro/steering/           contexto del proyecto
 ```
 
@@ -243,4 +247,4 @@ Están en `base_heredada/`.
 - `.kiro/steering/project-overview.md`: visión general, orden de ejecución y entregables.
 - `.kiro/steering/conventions.md`: convenciones de base de datos y de respaldo/recuperación.
 - `.kiro/steering/objects-and-patterns.md`: objetos heredados y patrones de scripts y consultas.
-- `protocolo_seguridad.md`: protocolo permanente de trabajo seguro.
+- `SPEC_U6.md`: especificación del plan; es la fuente para generar los scripts.
