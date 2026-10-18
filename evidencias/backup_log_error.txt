@@ -1,0 +1,5 @@
+2026-10-18 09:48:09 - INICIO - Iniciando proceso de respaldo para la base 'foodstore_no_existe' en servidor 'localhost:5432'.
+2026-10-18 09:48:09 - INFO - Ejecutando pg_dump hacia archivo parcial: C:\Users\Mariano_Chirino\Documents\GitHub\TP-Unidad6-BD2\backups\foodstore_20261018_094809.dump.parcial
+2026-10-18 09:48:09 - PG_DUMP: pg_dump: error: fall? la conexi?n al servidor en ?localhost? (::1), puerto 5432: FATAL:  no existe la base de datos ?foodstore_no_existe?
+2026-10-18 09:48:09 - ERROR - pg_dump fallo con codigo de salida 1.
+2026-10-18 09:48:09 - INFO - Archivo parcial eliminado.

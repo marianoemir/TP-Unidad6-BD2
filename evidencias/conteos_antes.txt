@@ -1,0 +1,12 @@
+Conteos ANTES del respaldo - base foodstore - 2026-10-18T09:35:32
+       control       | valor  
+---------------------+--------
+ categoria           |      6
+ usuario             |  20006
+ producto            |  50016
+ productos_invalidos |      0
+ pedido              | 200006
+ detalle_pedido      | 400013
+ detalles_invalidos  |      0
+(7 filas)
+

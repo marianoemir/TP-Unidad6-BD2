@@ -1,0 +1,23 @@
+2026-10-18 11:16:41 - INICIO - Iniciando simulacro de restauracion.
+2026-10-18 11:16:42 - INFO - Respaldo seleccionado: C:\Users\Mariano_Chirino\Documents\GitHub\TP-Unidad6-BD2\backups\foodstore_20261018_094932.dump
+2026-10-18 11:16:42 - INFO - Verificando si existe la base destino 'foodstore_restore_test'.
+2026-10-18 11:16:42 - INFO - La base destino ya existe. Eliminando 'foodstore_restore_test' con dropdb (fuera del cronometro).
+2026-10-18 11:16:42 - OK - Base destino previa eliminada.
+2026-10-18 11:16:42 - INFO - Hora de inicio del simulacro: 2026-10-18 11:16:42
+2026-10-18 11:16:42 - INFO - Creando base destino 'foodstore_restore_test'.
+2026-10-18 11:16:42 - OK - Base destino creada. Restaurando respaldo.
+2026-10-18 11:16:47 - OK - pg_restore finalizo correctamente. Iniciando validaciones.
+2026-10-18 11:16:48 - RESULTADO - Archivo usado: C:\Users\Mariano_Chirino\Documents\GitHub\TP-Unidad6-BD2\backups\foodstore_20261018_094932.dump
+2026-10-18 11:16:48 - RESULTADO - Hora de creacion del respaldo: 2026-10-18 09:49:32
+2026-10-18 11:16:48 - RESULTADO - Hora de inicio del simulacro: 2026-10-18 11:16:42
+2026-10-18 11:16:48 - RESULTADO - Hora de fin del simulacro: 2026-10-18 11:16:48
+2026-10-18 11:16:48 - RESULTADO - RTO observado: 6,19 segundos (00:00:06.1878335)
+2026-10-18 11:16:48 - RESULTADO - RPO observado: 1,45 horas (01:27:10.3300886)
+2026-10-18 11:16:48 - RESULTADO - Conteo categoria: 6
+2026-10-18 11:16:48 - RESULTADO - Conteo usuario: 20006
+2026-10-18 11:16:48 - RESULTADO - Conteo producto: 50016
+2026-10-18 11:16:48 - RESULTADO - Conteo pedido: 200006
+2026-10-18 11:16:48 - RESULTADO - Conteo detalle_pedido: 400013
+2026-10-18 11:16:48 - RESULTADO - productos_invalidos: 0
+2026-10-18 11:16:48 - RESULTADO - detalles_invalidos: 0
+2026-10-18 11:16:48 - OK - Restauracion de prueba completada satisfactoriamente. RTO: 6,19 s | RPO: 1,45 h

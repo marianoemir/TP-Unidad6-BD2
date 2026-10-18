@@ -1,0 +1,2 @@
+2026-10-18 11:13:13 - INICIO - Iniciando simulacro de restauracion.
+2026-10-18 11:13:13 - ERROR - Base destino no permitida: 'foodstore'. Solo se permite 'foodstore_restore_test'.

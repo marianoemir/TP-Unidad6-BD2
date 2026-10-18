@@ -1,0 +1,13 @@
+
+
+    Directorio: C:\Users\Mariano_Chirino\Documents\GitHub\TP-Unidad6-BD2\backups
+
+
+Mode                 LastWriteTime         Length Name                                                                 
+----                 -------------         ------ ----                                                                 
+-a----        18/10/2026     09:47       10650048 foodstore_20261018_094708.dump                                       
+-a----        18/10/2026     09:47             98 foodstore_20261018_094708.dump.sha256                                
+-a----        18/10/2026     09:49       10650048 foodstore_20261018_094932.dump                                       
+-a----        18/10/2026     09:49             98 foodstore_20261018_094932.dump.sha256                                
+
+

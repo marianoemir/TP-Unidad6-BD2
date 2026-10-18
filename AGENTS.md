@@ -17,7 +17,7 @@ final sea correcto.
 | Motor BD | PostgreSQL 16+ (el servidor del equipo corre 17) | Base de datos relacional |
 | Scripts | PowerShell (`.ps1`) sobre Windows | Respaldo y restauración automatizables |
 | SQL | `health_check.sql`, `maintenance.sql` | Monitoreo y mantenimiento |
-| Herramientas de PostgreSQL | `pg_dump`, `pg_restore`, `createdb`, `psql` | En `C:\Program Files\PostgreSQL\17\bin\` (no están en el PATH: los scripts reciben la ruta como parámetro) |
+| Herramientas de PostgreSQL | `pg_dump`, `pg_restore`, `createdb`, `dropdb`, `psql` | En `C:\Program Files\PostgreSQL\17\bin\` (no están en el PATH: los scripts reciben la ruta como parámetro) |
 | Cliente gráfico | pgAdmin 4 | Solo para consultar; ver "Trampas conocidas" |
 | Herramientas del TP | OpenCode, Git | OpenCode queda subordinado a la revisión y la prueba humanas |
 
@@ -63,18 +63,22 @@ chequeo de salud diario (salida de `health_check.sql`), revisión de mantenimien
 ## Estructura de carpetas
 
 ```
-food-store-tp-u6/
+TP-Unidad6-BD2/
 ├── SPEC_U6.md
 ├── backup_foodstore.ps1
-├── health_check.sql
-├── maintenance.sql
-├── restore_test.ps1          (opcional)
-├── informe_u6.pdf
-├── evidencias/               salidas, tamaños, tiempos, copias de logs
-│   └── datos_para_informe.md   datos del simulacro que completa Mariano
+├── health_check.sql          (Andrés)
+├── maintenance.sql           (Facundo)
+├── restore_test.ps1          (opcional; generado con OpenCode y revisado)
+├── informe_u6.pdf            (Facundo)
+├── evidencias/               salidas, tamaños, tiempos, copias de logs (respaldo, simulacro)
+├── Datos para Facundo/       insumos del informe, completados por Mariano
+│   ├── datos_para_informe.md   datos del simulacro (solo valores observados)
+│   └── error_sintaxis_backup.txt   salida del ParserError del respaldo (problema real)
+├── Para Facundo y Andres/    material de trabajo del equipo
+│   ├── DIVISION_DE_TRABAJO.md  quién hace qué y quién depende de quién
+│   └── PLANTILLA_bitacora.md   plantilla de la bitácora personal
 ├── bitacoras/                una bitácora personal por integrante (se unifican al final)
 ├── BITACORA.md               bitácora unificada (se arma al cerrar el trabajo)
-├── DIVISION_DE_TRABAJO.md    quién hace qué y quién depende de quién
 ├── base_heredada/            los 10 .sql de Food Store (U1–U4), sin modificar
 ├── AGENTS.md  README.md
 └── .kiro/steering/           contexto del proyecto
@@ -84,6 +88,10 @@ food-store-tp-u6/
 entrega como copia en `evidencias/`. Si el aula limita el tamaño de los archivos, el `.dump`
 puede omitirse: en ese caso se incorpora evidencia de su creación, su tamaño y su restauración
 exitosa.
+
+Dos carpetas tienen **espacios en el nombre** (`Datos para Facundo`, `Para Facundo y Andres`):
+entre comillas en la consola y con `-LiteralPath` en PowerShell. Los scripts solo usan
+`backups/` y `logs/`, así que no les afecta.
 
 ## Reglas Duras del Proyecto
 
@@ -160,6 +168,11 @@ Propias de la Unidad 6:
 - **PowerShell y los `.ps1`:** guardarlos en ASCII (sin tildes): Windows PowerShell 5.1 lee mal un
   `.ps1` en UTF-8 sin BOM. Revisar siempre `$LASTEXITCODE` después de llamar a `pg_dump` o
   `pg_restore`: los errores de herramientas externas no son excepciones de PowerShell.
+- **`$variable:` seguido de otra variable o texto es sintaxis inválida** en PowerShell: `'$Servidor:$Puerto'`
+  se interpreta como una unidad (como `C:`) y el script entero no arranca (`ParserError`). Escribir
+  `${Servidor}:${Puerto}`. Para detectar esto sin ejecutar, validar la sintaxis antes de la primera corrida:
+  `[System.Management.Automation.Language.Parser]::ParseFile("$PWD\backup_foodstore.ps1",[ref]$null,[ref]$e); $e`
+  (si `$e` queda vacío, no hay errores de sintaxis).
 - **Logs en UTF-16:** en Windows PowerShell 5.1, `Out-File` y los redireccionamientos (`>`, `2>>`)
   escriben UTF-16 por omisión, y el log se ve mal en muchos visores. Usar `Add-Content -Encoding ASCII`.
 - **`$ErrorActionPreference = 'Stop'` y herramientas externas:** en PowerShell 5.1, redirigir el
