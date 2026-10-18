@@ -1,0 +1,39 @@
+# ============================================================
+# TP Unidad 6 - Food Store (respaldo, monitoreo y recuperacion)
+# ============================================================
+
+# Respaldos y logs de ejecucion: se generan en local y NO se versionan.
+# La evidencia se entrega como copia en evidencias/.
+backups/
+logs/
+*.dump
+*.backup
+*.bak
+*.log
+
+# Credenciales: nunca en el repo (pgpass.conf vive en %APPDATA%\postgresql\)
+pgpass.conf
+.pgpass
+.pgpass.conf
+*.pgpass
+.env
+.env.*
+
+# Volcados SQL y copias de bases (pueden contener la base completa)
+*.sql.gz
+*.tar
+*.tar.gz
+*.zip
+respaldos/
+
+# Archivos temporales y de sistema
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
