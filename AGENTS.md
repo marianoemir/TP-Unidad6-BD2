@@ -71,9 +71,11 @@ TP-Unidad6-BD2/
 ├── restore_test.ps1          (opcional; generado con OpenCode y revisado)
 ├── informe_u6.pdf            (Facundo)
 ├── evidencias/               salidas, tamaños, tiempos, copias de logs (respaldo, simulacro)
-├── Datos para Facundo/       insumos del informe, completados por Mariano
-│   ├── datos_para_informe.md   datos del simulacro (solo valores observados)
-│   └── error_sintaxis_backup.txt   salida del ParserError del respaldo (problema real)
+├── Datos para Facundo/       insumos del informe
+│   └── Parte de Mariano para el informe/   completada por Mariano
+│       ├── datos_para_informe.md   datos del simulacro (solo valores observados)
+│       ├── error_sintaxis_backup.txt   salida del ParserError del respaldo (problema 1)
+│       └── error_restore_consola.txt   texto de consola del error de la linea 152 (problema 2)
 ├── Para Facundo y Andres/    material de trabajo del equipo
 │   ├── DIVISION_DE_TRABAJO.md  quién hace qué y quién depende de quién
 │   └── PLANTILLA_bitacora.md   plantilla de la bitácora personal
@@ -89,7 +91,7 @@ entrega como copia en `evidencias/`. Si el aula limita el tamaño de los archivo
 puede omitirse: en ese caso se incorpora evidencia de su creación, su tamaño y su restauración
 exitosa.
 
-Dos carpetas tienen **espacios en el nombre** (`Datos para Facundo`, `Para Facundo y Andres`):
+Las carpetas `Datos para Facundo`, `Parte de Mariano para el informe` y `Para Facundo y Andres` tienen **espacios en el nombre**:
 entre comillas en la consola y con `-LiteralPath` en PowerShell. Los scripts solo usan
 `backups/` y `logs/`, así que no les afecta.
 
@@ -171,8 +173,8 @@ Propias de la Unidad 6:
 - **`$variable:` seguido de otra variable o texto es sintaxis inválida** en PowerShell: `'$Servidor:$Puerto'`
   se interpreta como una unidad (como `C:`) y el script entero no arranca (`ParserError`). Escribir
   `${Servidor}:${Puerto}`. Para detectar esto sin ejecutar, validar la sintaxis antes de la primera corrida:
-  `[System.Management.Automation.Language.Parser]::ParseFile("$PWD\backup_foodstore.ps1",[ref]$null,[ref]$e); $e`
-  (si `$e` queda vacío, no hay errores de sintaxis).
+  `$e = $null; [System.Management.Automation.Language.Parser]::ParseFile("$PWD\backup_foodstore.ps1",[ref]$null,[ref]$e) | Out-Null; if ($e) { $e } else { "Sin errores de sintaxis" }`
+  (hay que inicializar `$e` antes: sin eso `[ref]$e` da error; si no hay errores, imprime "Sin errores de sintaxis").
 - **Logs en UTF-16:** en Windows PowerShell 5.1, `Out-File` y los redireccionamientos (`>`, `2>>`)
   escriben UTF-16 por omisión, y el log se ve mal en muchos visores. Usar `Add-Content -Encoding ASCII`.
 - **`$ErrorActionPreference = 'Stop'` y herramientas externas:** en PowerShell 5.1, redirigir el

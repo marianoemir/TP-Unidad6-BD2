@@ -100,7 +100,8 @@ El código de ambos scripts lo generó OpenCode. Los dos problemas los detectó 
 **Problema 1 — `backup_foodstore.ps1`: error de sintaxis.** Al ejecutarlo por primera vez, PowerShell rechazó el
 archivo con un `ParserError` en la línea 43: el texto `'$Servidor:$Puerto'` es sintaxis inválida, porque `$Servidor:`
 se interpreta como una unidad (como `C:`). Se corrigió escribiendo `${Servidor}:${Puerto}`. No se ejecutó nada del
-script antes del arreglo, así que no quedó ningún respaldo parcial. Evidencia: `Datos para Facundo/error_sintaxis_backup.txt`.
+script antes del arreglo, así que no quedó ningún respaldo parcial. Evidencia: `Datos para Facundo/Parte de Mariano para el informe/error_sintaxis_backup.txt`.
+Nota: OpenCode señaló esta misma línea (`$var:` sin llaves) en su respuesta al generar `restore_test.ps1`, pero recién después de que el error ya había aparecido al ejecutar; no lo advirtió antes.
 
 **Problema 2 — `restore_test.ps1`: error en la línea 152 cuando la base destino no existe.** En la primera corrida,
 `psql` no devolvió filas al buscar `foodstore_restore_test` (la base no existía) y la línea
@@ -112,7 +113,7 @@ pudo aplicar `.Trim()`; no se reprodujo fuera del equipo.
 - Corrección: `$existeBase = ("$resultadoExiste".Trim() -eq "1")` (la interpolación de una cadena trata el nulo como
   cadena vacía). Se comprobó la sintaxis con el analizador de PowerShell y se repitió el simulacro: la segunda
   corrida pasó por la rama que elimina la base existente, sin errores.
-- Evidencia: `Datos para Facundo/error_restore_consola.txt` (texto de la consola, que no se guardó en archivo),
+- Evidencia: `Datos para Facundo/Parte de Mariano para el informe/error_restore_consola.txt` (texto de la consola, que no se guardó en archivo),
   `evidencias/restore_log_con_error.txt` y `evidencias/restore_log_ok.txt`.
 
 ## 6. Mejora concreta propuesta
