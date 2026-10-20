@@ -1,0 +1,75 @@
+BEGIN
+                          control                          
+-----------------------------------------------------------
+ CONTROL 1 - Tamano de la base y de las tablas mas grandes
+(1 fila)
+
+   base    | tamano 
+-----------+--------
+ foodstore | 136 MB
+(1 fila)
+
+    relname     | tamano_total 
+----------------+--------------
+ detalle_pedido | 62 MB
+ pedido         | 48 MB
+ producto       | 13 MB
+ usuario        | 4872 kB
+ categoria      | 40 kB
+(5 filas)
+
+               control               
+-------------------------------------
+ CONTROL 2 - Actividad de conexiones
+(1 fila)
+
+ numbackends | xact_commit | xact_rollback | pct_aciertos_cache 
+-------------+-------------+---------------+--------------------
+           1 |        3655 |             2 |              99.99
+(1 fila)
+
+ conexiones_cliente_servidor | conexiones_en_esta_base | max_connections 
+-----------------------------+-------------------------+-----------------
+                           1 |                       1 |             100
+(1 fila)
+
+           control            
+------------------------------
+ CONTROL 3 - Estado de tablas
+(1 fila)
+
+           relname            | n_live_tup | n_dead_tup | pct_muertas | n_mod_since_analyze |        last_autovacuum        |       last_autoanalyze        | last_vacuum |         last_analyze          
+------------------------------+------------+------------+-------------+---------------------+-------------------------------+-------------------------------+-------------+-------------------------------
+ producto                     |      50016 |          1 |        0.00 |                   0 | 2026-10-18 09:30:53.87749-03  | 2026-10-18 09:30:55.499825-03 |             | 2026-10-18 09:32:13.543099-03
+ categoria                    |          6 |          0 |        0.00 |                   0 |                               |                               |             | 2026-10-18 09:30:25.654531-03
+ detalle_pedido               |     400013 |          0 |        0.00 |                   0 | 2026-10-18 09:30:58.512731-03 | 2026-10-18 09:30:59.017549-03 |             | 2026-10-18 09:30:28.417246-03
+ mv_facturacion_categoria_mes |         87 |          0 |        0.00 |                   0 |                               | 2026-10-18 09:32:53.511213-03 |             | 
+ pedido                       |     200006 |          0 |        0.00 |                   0 | 2026-10-18 09:30:57.363318-03 | 2026-10-18 09:30:57.792517-03 |             | 2026-10-18 09:32:02.961652-03
+ usuario                      |      20006 |          0 |        0.00 |                   0 | 2026-10-18 09:30:55.562441-03 | 2026-10-18 09:30:56.618182-03 |             | 2026-10-18 09:30:28.083332-03
+(6 filas)
+
+                        control                         
+--------------------------------------------------------
+ CONTROL 4 - Consultas activas (sin contar esta sesion)
+(1 fila)
+
+ pid | usename | state | duracion | wait_event_type | query 
+-----+---------+-------+----------+-----------------+-------
+(0 filas)
+
+                        control                        
+-------------------------------------------------------
+ CONTROL 5 - Parametros de autovacuum (complementario)
+(1 fila)
+
+              name               | setting | unit 
+---------------------------------+---------+------
+ autovacuum                      | on      | 
+ autovacuum_analyze_scale_factor | 0.1     | 
+ autovacuum_analyze_threshold    | 50      | 
+ autovacuum_vacuum_scale_factor  | 0.2     | 
+ autovacuum_vacuum_threshold     | 50      | 
+ track_counts                    | on      | 
+(6 filas)
+
+COMMIT
