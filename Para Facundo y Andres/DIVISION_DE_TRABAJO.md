@@ -3,187 +3,95 @@
 Mantenimiento, respaldo y recuperación. Equipo de tres integrantes. Este documento dice **quién hace qué,
 quién depende de quién y en qué orden** se avanza. Se actualiza si el reparto cambia.
 
-## 0. Estado al 2026-10-18 y qué falta (leer esto primero)
+## 0. Estado al 2026-10-20 y qué falta (leer esto primero)
 
-Mariano terminó su parte de producción. **Para que pueda cerrar el trabajo le faltan cosas de Andrés y de Facundo**:
-sin los dos SQL no puede hacer la corrida oficial, y sin las bitácoras no puede unificar. Lo que figura como hecho
-tiene evidencia en el repo. A esta fecha **no hay** `health_check.sql`, `maintenance.sql` ni `informe_u6.pdf`; si ya
-avanzaron, avisen y actualicen esta tabla.
+Mariano terminó su parte y también `health_check.sql`. **Ahora sigue Andrés** (`maintenance.sql`); **Facundo** arma el
+informe y puede empezar ya, porque sus valores salen de `datos_para_informe.md`, que está completo. Lo que figura
+como hecho tiene evidencia en el repo.
 
 | Tarea | Responsable | Estado |
 |---|---|---|
-| H0 entorno | Mariano | Hecho (`pgpass.conf` y `foodstore` con volumen: `evidencias/conteos_antes.txt`) |
+| H0 entorno | Cada uno en su servidor | Mariano: hecho (`pgpass.conf` y `foodstore` con volumen: `evidencias/conteos_antes.txt`). Andrés: **falta confirmar** |
 | H1 `SPEC_U6.md` | Mariano | Hecho |
 | H2 `backup_foodstore.ps1` | Mariano | Hecho y probado (caso éxito y caso error) |
-| H3a `health_check.sql` | **Andrés** | **Falta** |
-| H3b `maintenance.sql` | **Facundo** | **Falta** (necesita la salida de H3a) |
+| H3a `health_check.sql` | Mariano | Hecho y ejecutado: `health_check.sql` y `evidencias/health_check_salida.txt` |
+| H3b `maintenance.sql` | **Andrés** | **Falta** (ver su sección: tiene que justificarse con lo que él observe) |
 | H4 simulacro (`restore_test.ps1`) | Mariano | Hecho: dos corridas, la oficial con RTO 6,19 s y RPO 1,45 h |
 | Datos para el informe | Mariano | Hecho: `Datos para Facundo/Parte de Mariano para el informe/datos_para_informe.md` |
-| H5 revisión cruzada | Los tres | **Falta** (ver abajo quién revisa qué) |
-| H6 `informe_u6.pdf` | **Facundo** | **Falta** (necesita H3a y H3b) |
+| H5 revisión cruzada | Andrés y Mariano | **Falta** (ver sección 6) |
+| H6 `informe_u6.pdf` | **Facundo** | **Falta** (puede empezar ya) |
 | H6 `README.md` | Mariano | Hecho |
 | H6 bitácoras y `BITACORA.md` unificada | Los tres / Mariano | **Falta**: Andrés y Facundo entregan la suya; Mariano unifica |
-| Corrida oficial de punta a punta | Mariano | **Falta**: necesita H3a y H3b en `main` |
+| Revisión del informe | Andrés y Mariano | **Falta** (cuando Facundo lo entregue) |
 
-### Orden para avanzar (lo que bloquea a quién)
+### Orden para avanzar
 
-1. **Andrés** hace `health_check.sql` y le pasa la salida a Facundo. Es lo que desbloquea todo lo demás.
-2. **Facundo** hace `maintenance.sql` con esa salida como observación previa.
-3. **Mariano** (cuando los dos SQL estén en `main`) hace la corrida oficial y revisa `maintenance.sql`.
-4. **Facundo** arma `informe_u6.pdf` con los datos reales y **Andrés** lo revisa.
-5. Los tres entregan su bitácora y **Mariano** unifica `BITACORA.md`.
-
-Mientras Andrés trabaja, Facundo puede adelantar el entorno, la bitácora, la revisión cruzada del simulacro y
-la estructura del informe. Y Andrés, la revisión cruzada del respaldo.
+1. **Andrés** (ahora): arma su entorno si no lo hizo, revisa el respaldo, observa el estado de sus tablas y hace
+   `maintenance.sql`. Es lo único que bloquea la entrega de la Parte 3. Cuando termina, **le deja a Facundo una nota
+   con lo que hizo** (paso 7 de su sección) y escribe su bitácora.
+2. **Facundo** (en paralelo, sin esperar a nadie): arma `informe_u6.pdf` desde `datos_para_informe.md`, lee la nota
+   de Andrés cuando llegue y escribe su bitácora.
+3. **Mariano** (cuando `maintenance.sql` esté en `main` y Facundo entregue el informe): revisa `maintenance.sql`,
+   revisa el informe junto con Facundo y decide con él si se agrega algo del monitoreo y del mantenimiento, y unifica
+   `BITACORA.md`.
+4. Los tres entregan su bitácora y **Mariano** unifica.
 
 ### Lo que Mariano ya dejó listo para usar
 
 - `SPEC_U6.md` y `AGENTS.md` (con la lista de ocho preguntas para revisar código generado por IA).
 - `backup_foodstore.ps1` y `restore_test.ps1`, con sus pruebas en `evidencias/`.
+- `health_check.sql` (raíz del repo) y `evidencias/health_check_salida.txt` (su corrida en el servidor de Mariano).
 - `Datos para Facundo/Parte de Mariano para el informe/datos_para_informe.md`: todos los valores del simulacro (respaldo
   usado, dos corridas, RPO y RTO, validaciones, los dos problemas reales, la mejora propuesta, uso de OpenCode). **El
-  informe se arma desde ahí; no se inventa ningún valor.** Las filas de `health_check.sql` y `maintenance.sql` de la
-  tabla de OpenCode (sección 7) las completan Andrés y Facundo con lo que anotaron en su bitácora.
+  informe se arma desde ahí; no se inventa ningún valor.**
 - `Para Facundo y Andres/PLANTILLA_bitacora.md` para la bitácora personal.
-
-### Andrés: qué tiene que hacer, paso a paso
-
-1. **Entorno (H0), si no lo hizo:** `foodstore` con datos y `pgpass.conf` funcionando (sección 4). Anotar los conteos
-   en su bitácora.
-2. **`health_check.sql`**, en la raíz del repo, partiendo de las cuatro consultas de la consigna. Requisitos:
-   - Mínimo cuatro controles: tamaño de la base, actividad de conexiones, **estado de tablas** y consultas activas.
-   - En el estado de tablas, mostrar `n_live_tup`, `n_dead_tup`, **`n_mod_since_analyze`**, `last_autovacuum` y
-     `last_autoanalyze` (la spec y el mantenimiento se apoyan en esas columnas).
-   - En consultas activas, **no contar la propia sesión** (`pid <> pg_backend_pid()`).
-   - Solo lectura; tiene que correr en PostgreSQL 16+. Sin contraseñas ni datos personales.
-   - Puede generarlo con OpenCode a partir de `SPEC_U6.md` y `AGENTS.md`. **Se revisa con la lista de ocho preguntas
-     y se ejecuta antes de aceptarlo.** Anotar en la bitácora qué se pidió, qué devolvió y qué corrigió.
-3. **Ejecutarlo y guardar la salida.** Desde la raíz del repo, en PowerShell (copiar solo el comando):
-   `& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -h localhost -U postgres -d foodstore -w -f .\health_check.sql -o .\evidencias\health_check_salida.txt`
-   Usar `-o` evita que PowerShell 5.1 guarde el archivo en UTF-16. Revisar que el archivo muestre los cuatro controles.
-4. **Entregar a Facundo** la salida del control de estado de tablas (`evidencias/health_check_salida.txt`): es la
-   observación previa de `maintenance.sql`. Avisarle apenas esté subida.
-5. **Revisión cruzada del respaldo:** correr `backup_foodstore.ps1` en **su** servidor y comprobar que no depende de
-   nada de la máquina de Mariano (rutas, usuario, clave), que genera el `.dump` y el log, y que termina con código 0.
-   Aplicar la lista de ocho preguntas de `AGENTS.md`. Registrar en la bitácora qué revisó y qué encontró (si no encontró
-   nada, también se anota). Si encuentra un problema, avisarle a Mariano: no se cambia el script sin avisar.
-6. **Revisión del informe** cuando Facundo lo tenga: cada valor del informe tiene que tener su evidencia en
-   `evidencias/` o en `datos_para_informe.md`, y el informe tiene que diferenciar RPO de RTO.
-7. **Bitácora:** `bitacoras/bitacora_andres.md`, desde `Para Facundo y Andres/PLANTILLA_bitacora.md`.
-8. **Git:** rama `parte-3a-health-check`, commits descriptivos (`feat(monitoreo): ...`), Pull Request a `main`.
-   Subir `health_check.sql`, `evidencias/health_check_salida.txt` y la bitácora.
-
-### Facundo: qué tiene que hacer, paso a paso
-
-1. **Entorno (H0), si no lo hizo**, y anotar los conteos en su bitácora.
-2. **`maintenance.sql`**, en la raíz del repo, **cuando tenga la salida de Andrés** (o corriendo a mano la misma consulta
-   de estado de tablas). Requisitos:
-   - **Observación previa:** estado de las tablas (`n_dead_tup`, `n_mod_since_analyze`, `last_autovacuum`,
-     `last_autoanalyze`) y configuración de autovacuum.
-   - **Una acción segura y justificada por lo observado.** La justificación tiene que corresponder a la acción:
-     `ANALYZE` actualiza estadísticas; `VACUUM` elimina tuplas muertas. `ANALYZE` **no** limpia tuplas muertas.
-   - **Sin `VACUUM FULL`** (bloqueo exclusivo; no es mantenimiento periódico). Si hace falta, `VACUUM (ANALYZE)` común.
-   - **Observación posterior** a la acción, para mostrar el efecto.
-   - `VACUUM` **no corre dentro de una transacción**, y pgAdmin manda el script como una sola sentencia: **ejecutarlo
-     con `psql -f`**, no con el Query Tool.
-   - Se revisa con la lista de ocho preguntas de `AGENTS.md` y se ejecuta antes de aceptarlo (si lo genera OpenCode).
-3. **Ejecutarlo y guardar la salida** (antes, acción, después), desde la raíz del repo:
-   `& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -h localhost -U postgres -d foodstore -w -f .\maintenance.sql -o .\evidencias\maintenance_salida.txt`
-4. **Revisión cruzada del simulacro:** en **su** servidor, correr primero `backup_foodstore.ps1` (para tener un `.dump`
-   propio) y después `restore_test.ps1`. Comparar contra `evidencias/restore_log_ok.txt`: conteos que coincidan con
-   los previos de **su** base, `productos_invalidos` y `detalles_invalidos` en 0 y RTO/RPO registrados. Anotar qué
-   revisó y qué encontró. Si algo falla, avisarle a Mariano.
-5. **`informe_u6.pdf`** (una página como máximo), cuando estén H3a y H3b, a partir de `datos_para_informe.md` y de las
-   salidas de los dos SQL. Tiene que incluir:
-   - fecha y hora del respaldo usado (2026-10-18 09:49:32, `foodstore_20261018_094932.dump`);
-   - tiempo total de restauración y validación (RTO observado) y RPO observado, **diferenciados**, junto con los
-     **previstos** (RPO hasta 24 h, RTO menos de 20 min);
-   - resultado de las validaciones de tablas y de las restricciones lógicas;
-   - **un problema real** encontrado (hubo dos: línea 43 del respaldo y línea 152 de la restauración);
-   - **una mejora concreta** (respaldar roles con `pg_dumpall --globals-only --no-role-passwords`);
-   - qué parte asistió OpenCode y cómo se verificó antes de aceptarla;
-   - la aclaración de que la consigna dice `cliente` y en esta base la tabla se llama `usuario`;
-   - cuando se hicieron dos corridas del simulacro, informar las dos y marcar la oficial.
-   No inventar valores: los que no estén en las evidencias, no van. Entregarlo como PDF.
-6. **Bitácora:** `bitacoras/bitacora_facundo.md`, desde la plantilla.
-7. **Git:** ramas `parte-3b-maintenance` y `parte-5-informe`, commits descriptivos (`feat(mantenimiento): ...`,
-   `docs(informe): ...`), Pull Request a `main`. Subir `maintenance.sql`, `evidencias/maintenance_salida.txt`,
-   `informe_u6.pdf` y la bitácora.
-
-### Mariano: lo que queda (depende de los otros dos)
-
-1. **Corrida oficial de punta a punta** en su servidor, con `health_check.sql` y `maintenance.sql` ya en `main`.
-2. **Revisión cruzada de `maintenance.sql`**: correrlo y validar que la acción esté justificada por lo observado.
-3. **Unificar `BITACORA.md`**, comparando cada fila contra la evidencia, cuando lleguen las bitácoras de Andrés y Facundo.
-4. **Revisión final del repo antes de entregar:** sin contraseñas, sin `.dump` ni logs sin revisar, informe en PDF,
-   todos los entregables en `main`.
-
-### Reglas que valen para los dos
-
-- Sin contraseñas en ningún archivo ni commit. `pgpass.conf` queda fuera del repo.
-- `foodstore` solo se lee; las pruebas destructivas van solo en `foodstore_restore_test`.
-- El código de OpenCode se revisa y se ejecuta antes de aceptarse; en la bitácora se anota lo que realmente pasó,
-  incluso si OpenCode no se equivocó.
-- No abrir ni pegar `backups/*.dump` en ninguna IA.
 
 ## 1. Reparto
 
-| Integrante | A su cargo | Peso en la nota | Carga |
-|---|---|---|---|
-| **Mariano Chirino** | `SPEC_U6.md` (Parte 1), `backup_foodstore.ps1` (Parte 2), **simulacro contra reloj** con RTO y RPO (Parte 4), `README.md`, la corrida oficial y la **unificación de las bitácoras** | 2,0 + 2,0 + 3,0 = **7,0** | **Alta** |
-| **Andrés** | **`health_check.sql`** (mitad de la Parte 3) y la revisión cruzada del respaldo | ~1,0 | Media |
-| **Facundo** | **`maintenance.sql`** (mitad de la Parte 3) y **`informe_u6.pdf`** (Parte 5) | 1,0 + 1,0 = **2,0** | Media |
+| Integrante | A su cargo | Partes de la consigna |
+|---|---|---|
+| **Mariano Chirino** | `SPEC_U6.md` (Parte 1), `backup_foodstore.ps1` (Parte 2), `health_check.sql` (mitad de la Parte 3), **simulacro contra reloj** con RTO y RPO (Parte 4), `README.md`, revisión de `maintenance.sql` y del informe, y la **unificación de las bitácoras** | Partes 1, 2 y 4, y la mitad de la Parte 3 |
+| **Andrés** | **`maintenance.sql`** (mitad de la Parte 3), revisión cruzada del respaldo y revisión del informe | La mitad de la Parte 3 |
+| **Facundo** | **`informe_u6.pdf`** (Parte 5) | Parte 5 |
 
-- La Parte 3 se divide: Andrés hace el monitoreo y Facundo el mantenimiento. Si prefieren cambiar, se
-  intercambian y se actualiza esta tabla.
-- Mariano concentra las partes que más pesan (spec, respaldo y restauración medida) porque condicionan al
-  resto: sin spec no se generan los scripts, sin respaldo no hay simulacro y sin simulacro no hay informe.
-- La spec y el README los arma Mariano (con asistencia de Claude); los otros dos no tienen que escribirlos.
+- La Parte 3 se divide: Mariano hizo el monitoreo (`health_check.sql`) y Andrés hace el mantenimiento
+  (`maintenance.sql`).
+- Si prefieren cambiar algo, se intercambia y se actualiza esta tabla.
 
 ## 2. Matriz de dependencias
 
 | # | Tarea | Responsable | Necesita de… | Bloquea a… |
 |---|---|---|---|---|
-| H0 | Entorno propio listo (sección 4) | **Los tres, cada uno en su servidor** | — | Todo lo demás |
-| H1 | `SPEC_U6.md` aprobado | **Mariano** | H0 | H2, H3a y H3b (OpenCode genera los scripts a partir de la spec y de `AGENTS.md`) |
-| H2 | `backup_foodstore.ps1` probado, un `.dump`, log y conteos previos | **Mariano** | H1 | H4 y la revisión de Andrés |
-| H3a | `health_check.sql` probado | **Andrés** | H1 | H3b (su control del estado de las tablas es la "observación previa" del mantenimiento) y el informe |
-| H3b | `maintenance.sql` probado y justificado | **Facundo** | H1 y **H3a** | El informe |
-| H4 | Simulacro: restauración, validaciones, RTO y RPO (`restore_test.ps1` opcional) | **Mariano** | **H2** | El informe |
-| H5 | Corrida oficial y revisión cruzada | **Los tres** | H2, H3a, H3b y H4 | H6 |
-| H6 | `informe_u6.pdf`, `README.md`, bitácora unificada y entrega | **Facundo** (informe), **Mariano** (README y bitácora) | **H4**, H3a, H3b y H5 | — |
+| H0 | Entorno propio listo (sección 4) | **Cada uno, en su servidor** | — | Todo lo que se ejecuta |
+| H1 | `SPEC_U6.md` aprobado | **Mariano** | H0 | Hecho |
+| H2 | `backup_foodstore.ps1` probado, un `.dump`, log y conteos previos | **Mariano** | H1 | Hecho |
+| H3a | `health_check.sql` probado | **Mariano** | H1 | Hecho |
+| H3b | `maintenance.sql` probado y justificado | **Andrés** | H0 propio y la observación de **su** servidor | La revisión de Mariano |
+| H4 | Simulacro: restauración, validaciones, RTO y RPO | **Mariano** | H2 | Hecho |
+| H5 | Revisión cruzada | **Andrés y Mariano** | H2, H3a, H3b y H4 | La entrega |
+| H6 | `informe_u6.pdf` | **Facundo** | H4 (hecho) y `datos_para_informe.md` | La revisión del informe |
 
-```
-H0 entorno (los 3)
-  └─> H1 SPEC (Mariano) ──┬─> H2 respaldo (Mariano) ──> H4 simulacro (Mariano) ──────────┐
-                          ├─> H3a health_check (Andrés) ──┬──────────────────────────────┤
-                          └───────────────────────────────┴─> H3b maintenance (Facundo) ─┼─> H5 revisión ─> H6 informe (Facundo)
-                                                                                         │                  README + bitácora (Mariano)
-```
-
-- **H2 y H3a son independientes:** Mariano y Andrés avanzan en paralelo una vez aprobada la spec.
-- **H3b depende de H3a:** el mantenimiento se justifica con lo que muestra el control del estado de tablas
-  (`n_dead_tup`, `n_mod_since_analyze`, `last_autovacuum`, `last_autoanalyze`). Facundo puede empezar corriendo
-  esa misma consulta a mano, pero el `maintenance.sql` final cita el `health_check.sql` de Andrés.
-- **H4 depende solo de H2.** No hace falta esperar a los otros dos para restaurar.
-- **El informe (H6) es lo último y depende de dos personas:** de Mariano (RTO, RPO, validaciones, problema real)
-  y de Andrés y Facundo (evidencias de monitoreo y mantenimiento). Facundo puede dejar la estructura armada
-  antes, pero los valores salen de las ejecuciones reales.
+- **El informe de Facundo no depende de `maintenance.sql`.** La consigna no pide en el informe resultados de monitoreo
+  ni de mantenimiento. Lo que se decida agregar sobre eso se decide **después**, cuando el informe esté hecho
+  (Mariano y Facundo, con lo que entregue Andrés).
+- **`maintenance.sql` depende de la observación del propio servidor de Andrés**, no de la de Mariano. Cada integrante
+  tiene su PostgreSQL, y el estado de las tablas puede ser distinto.
 
 ## 3. Qué se entrega de uno a otro (puntos de traspaso)
 
 | De | A | Qué | Dónde queda |
 |---|---|---|---|
-| Mariano | Andrés y Facundo | `SPEC_U6.md` final: carpetas, nombres, condición de éxito, RPO y RTO previstos | raíz del repo |
-| Mariano | Andrés y Facundo | Respaldo generado: nombre, tamaño, log y SHA-256; conteos **antes** del respaldo | `evidencias/` (el `.dump` no se versiona) |
-| Andrés | Facundo | `health_check.sql` y su salida, en especial el control del estado de tablas | `health_check.sql` y `evidencias/` |
-| Facundo | Mariano y Andrés | `maintenance.sql`: observación previa, acción, observación posterior y justificación | `maintenance.sql` y `evidencias/` |
-| Mariano | Facundo | Tiempos del simulacro, antigüedad del respaldo, validaciones, problema real y mejora | `evidencias/` y su bitácora |
+| Mariano | Andrés y Facundo | `SPEC_U6.md` final y `AGENTS.md` | raíz del repo |
+| Mariano | Andrés | `health_check.sql` y su salida (referencia, no sustituye a la observación propia) | raíz y `evidencias/` |
+| Mariano | Facundo | Tiempos del simulacro, antigüedad del respaldo, validaciones, problema real y mejora | `Datos para Facundo/Parte de Mariano para el informe/datos_para_informe.md` |
+| Andrés | **Facundo** | **Nota de mantenimiento**: qué observó, qué acción eligió y por qué, qué resultado dio y qué asistió OpenCode (plantilla en el paso 7 de Andrés) | `Datos para Facundo/Parte de Andres para el informe/nota_mantenimiento.md` |
+| Andrés | Mariano | `maintenance.sql`, sus dos salidas y su bitácora | raíz, `evidencias/` y `bitacoras/` |
+| Facundo | Andrés y Mariano | `informe_u6.pdf` y su bitácora | raíz y `bitacoras/` |
 | Los tres | Mariano | Su bitácora personal, para unificarla | `bitacoras/` |
 
 ## 4. Armado del entorno (H0): lo hace cada uno en su propio servidor
 
-Cada integrante crea la base de cero en pgAdmin 4, en este orden:
+Cada integrante que ejecute algo crea la base de cero en pgAdmin 4, en este orden:
 
 1. Crear la base `plantilla_food_store`. En su Query Tool ejecutar, **uno por vez y en este orden**:
    `base_heredada/schema.sql` → `base_heredada/objects.sql` → `base_heredada/data.sql`.
@@ -193,80 +101,238 @@ Cada integrante crea la base de cero en pgAdmin 4, en este orden:
    `views.sql` → `materializadas.sql`.
 4. Crear `pgpass.conf` en `%APPDATA%\postgresql\` con la línea `localhost:5432:*:postgres:<clave>`.
    **Ese archivo no va al repo** (el `.gitignore` ya lo excluye) y la clave no se escribe en ningún otro lado.
-5. Comprobar que la base tiene volumen (sin volumen el RTO no significa nada) y anotar los conteos en la
+5. Comprobar que la base tiene volumen (sin volumen no hay nada que observar) y anotar los conteos en la
    bitácora personal: `usuario` ronda las 20.000 filas, `producto` supera las 50.000 y `pedido` las 200.000.
 
-Hito H0 cumplido cuando los tres tienen `foodstore` con datos y `pgpass.conf` funcionando
+Hito H0 cumplido cuando el integrante tiene `foodstore` con datos y `pgpass.conf` funcionando
 (`psql -h localhost -U postgres -d foodstore -w -c "SELECT 1"` responde sin pedir clave).
+**Facundo no necesita armar la base para escribir el informe**: alcanza con el repo.
 
 ## 5. Qué hace cada uno, en detalle
 
-### Mariano — spec, respaldo, simulacro, README e integración (carga alta)
+### Andrés — `maintenance.sql` y revisión del respaldo (lo que sigue ahora)
 
-1. **`SPEC_U6.md`** (una página como máximo): qué se automatiza, frecuencia, condición exacta de éxito de cada
-   tarea, RPO y RTO previstos (24 h y menos de 20 min) y reglas de seguridad. **Es lo primero:** sin ella los
-   otros dos no pueden pedirle nada a OpenCode.
-2. **Respaldo:** con OpenCode, `backup_foodstore.ps1` a partir de la spec y de `AGENTS.md`. Lo revisa línea
-   por línea (lista de revisión de `AGENTS.md`), lo ejecuta a mano y guarda las evidencias: archivo, tamaño, log.
-3. **Conteos previos:** corre la validación sobre `foodstore` y los guarda en `evidencias/conteos_antes.txt`
-   **antes** de respaldar.
-4. **Simulacro:** restaura el último respaldo en `foodstore_restore_test` con el cronómetro, valida y calcula
-   RTO y la antigüedad del respaldo (RPO observado). Opcional: `restore_test.ps1`.
-5. **Corrida oficial:** al final, ejecuta una sola vez todo el procedimiento (respaldo, `health_check.sql`,
-   `maintenance.sql`, restauración medida) para que el informe hable de una única base y de una única ejecución.
-6. **Mejora a documentar:** respaldo de roles con `pg_dumpall --globals-only --no-role-passwords`, que
-   `pg_dump` no incluye.
-7. **`README.md`** final y **unificación de las bitácoras** (sección 8).
+Todos los comandos se escriben en **PowerShell, parado en la raíz del repo** (la carpeta `TP-Unidad6-BD2`), y se copia
+**solo el comando**, sin el `PS C:\...>`. Si el repo está en otra ruta, no importa: lo que importa es estar en su raíz.
+Las carpetas `Datos para Facundo` y `Para Facundo y Andres` llevan comillas en la consola por los espacios.
 
-### Andrés — `health_check.sql` y revisión (carga media)
+**Paso 1. Dejar el repo al día y el entorno listo.**
+- En GitHub Desktop: *Fetch origin* y *Pull origin*. Tienen que aparecer `health_check.sql`, `restore_test.ps1` y las
+  carpetas `evidencias/` y `Datos para Facundo/`.
+- Si todavía no tiene `foodstore`, armarla con la sección 4 y dejar `pgpass.conf` funcionando.
+- Anotar en la bitácora los conteos de su base (`categoria`, `usuario`, `producto`, `pedido`, `detalle_pedido`).
 
-1. **`health_check.sql`:** al menos cuatro controles (tamaño, conexiones, estado de tablas, consultas
-   activas). Solo lectura, ejecutable en PostgreSQL 16+, y sin contar su propia sesión entre las consultas activas.
-2. **Entrega a Facundo:** la salida del control de estado de tablas, que es la observación previa que
-   necesita `maintenance.sql`.
-3. **Revisión cruzada de H2:** ejecuta `backup_foodstore.ps1` en **su** servidor y verifica que no dependa de
-   nada de la máquina de Mariano (rutas, usuario, clave). Aplica la lista de revisión de `AGENTS.md`.
+**Paso 2. Revisión cruzada del respaldo.** Correr el script de Mariano en **su** servidor y comprobar que no depende de
+nada de la máquina de Mariano (rutas, usuario, clave):
 
-### Facundo — `maintenance.sql` e informe (carga media)
+```
+.\backup_foodstore.ps1
+```
 
-1. **`maintenance.sql`:** revisión de autovacuum y `ANALYZE`, y **una acción justificada** por lo observado.
-   La justificación tiene que corresponder a la acción: `ANALYZE` actualiza estadísticas y `VACUUM` elimina
-   tuplas muertas. Sin `VACUUM FULL`. Recordar que `VACUUM` no corre dentro de un bloque de transacción.
-2. **Evidencia:** observación antes de la acción, la acción y observación después, en su servidor.
-3. **`informe_u6.pdf`** (una página como máximo), con los valores reales de las ejecuciones: lo arma cuando
-   H4 termina. Tiene que diferenciar RPO de RTO y registrar valores observados.
-4. **Revisión cruzada de H4:** ejecuta el procedimiento de restauración en **su** servidor con su propio
-   respaldo y confirma que funciona fuera de la máquina de Mariano.
+- Tiene que terminar con `RESULTADO: OK`, generar un `.dump` y su `.sha256` en `backups\`, y un log en `logs\`.
+- Si falla porque las herramientas de PostgreSQL están en otra carpeta, se pasa la ruta por parámetro
+  (por ejemplo `-PgDump "C:\...\pg_dump.exe" -PgRestore "C:\...\pg_restore.exe"`). Eso **no es un error del script**: se
+  anota igual en la bitácora.
+- Aplicar la lista de ocho preguntas de `AGENTS.md` al script. Registrar en la bitácora qué revisó y qué encontró
+  (si no encontró nada, también se anota). Si encuentra un problema, avisarle a Mariano: no se cambia el script sin avisar.
+
+**Paso 3. Dejar lista la base descartable.** Correr el simulacro, que además crea y llena `foodstore_restore_test`:
+
+```
+.\restore_test.ps1
+```
+
+- Comparar contra `evidencias/restore_log_ok.txt`: los conteos tienen que coincidir con los de **su** `foodstore`,
+  `productos_invalidos` y `detalles_invalidos` en 0, y RTO y RPO registrados. Anotar qué revisó y qué encontró.
+
+**Paso 4. Observar el estado de sus tablas (esto es lo que justifica `maintenance.sql`).** Correr el monitoreo de
+Mariano sobre **su** `foodstore`:
+
+```
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -h localhost -U postgres -d foodstore -w -f .\health_check.sql -o .\evidencias\health_check_salida_andres.txt
+```
+
+- Si la carpeta de PostgreSQL es otra, se cambia la ruta de `psql.exe`.
+- Para comprobar que el archivo se creó:
+  `Get-ChildItem .\evidencias | Sort-Object LastWriteTime -Descending | Select-Object -First 3 Name, Length, LastWriteTime`
+- Mirar sobre todo el **CONTROL 3** (estado de tablas) y el **CONTROL 5** (parámetros de autovacuum).
+
+**Paso 5. Escribir `maintenance.sql`** en la raíz del repo. Requisitos de la consigna y de esta spec:
+
+- **Observación previa:** estado de las tablas (`n_live_tup`, `n_dead_tup`, `n_mod_since_analyze`, `last_autovacuum`,
+  `last_autoanalyze`) y configuración de autovacuum. Conviene calcular con esos parámetros el **umbral** al que
+  autovacuum limpiaría cada tabla: `autovacuum_vacuum_threshold + autovacuum_vacuum_scale_factor * n_live_tup`, y
+  compararlo con `n_dead_tup`.
+- **Una acción segura y justificada por lo observado.** La justificación tiene que corresponder a la acción:
+  - `VACUUM` elimina tuplas muertas: se justifica si `n_dead_tup` se acerca al umbral o autovacuum no corrió.
+  - `ANALYZE` actualiza estadísticas: se justifica si `n_mod_since_analyze` es alto o `last_analyze` y
+    `last_autoanalyze` están vacíos o viejos. **`ANALYZE` no limpia tuplas muertas.**
+- **Sin `VACUUM FULL`** (bloqueo exclusivo; no es mantenimiento periódico). Si hace falta, `VACUUM (ANALYZE)` común.
+- **Observación posterior** a la acción, para mostrar el efecto.
+- **No inventar el motivo.** En el servidor de Mariano el estado es sano (como máximo 1 tupla muerta en `producto` y
+  `n_mod_since_analyze` en 0 en todas las tablas): ahí **no hay nada que justifique** un `VACUUM` ni un `ANALYZE`
+  sobre `foodstore`. En el de Andrés puede ser distinto: **se decide mirando su salida**. Si también está sano, hay dos
+  caminos honestos, y se anota cuál se eligió y por qué:
+  1. **Ensayo en `foodstore_restore_test`** (permitido: las pruebas destructivas van solo en la base descartable). Por
+     ejemplo, una actualización masiva sobre `producto` que no cambie valores genera tuplas muertas; se observan, se
+     corre `VACUUM` y se observa de nuevo. Se aclara en el script y en la bitácora que es un **ensayo**, no
+     mantenimiento real. `foodstore` no se toca.
+  2. **Decisión de no actuar sobre `foodstore`**, documentada con los números: lo observado no justifica la acción y
+     autovacuum alcanza. Es lo más fiel a los datos, pero la consigna pide una acción, así que es más arriesgado.
+- **`VACUUM` no corre dentro de una transacción**, y pgAdmin manda el script como una sola sentencia: **se ejecuta con
+  `psql -f`**, no con el Query Tool. Por eso el script no usa `BEGIN`.
+- Puede generarlo con OpenCode a partir de `SPEC_U6.md` y `AGENTS.md`, pasándole los requisitos de arriba y los
+  números de su observación (son nombres de tablas y conteos, no datos personales). **No se abre `backups/` con
+  OpenCode.** Se revisa con la lista de ocho preguntas y se ejecuta antes de aceptarlo.
+
+**Paso 6. Ejecutarlo y guardar la salida.** Sobre la base donde se aplica la acción (`foodstore`, o
+`foodstore_restore_test` si se eligió el ensayo; el nombre va en `-d`):
+
+```
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -h localhost -U postgres -d foodstore_restore_test -w -f .\maintenance.sql -o .\evidencias\maintenance_salida.txt
+```
+
+Revisar que el archivo muestre las tres partes (antes, acción, después). `-o` evita que PowerShell 5.1 guarde el archivo
+en UTF-16.
+
+**Paso 7. Dejarle información a Facundo.** Facundo arma el informe y necesita saber, con valores reales, qué se hizo
+en el mantenimiento. Andrés crea el archivo `Datos para Facundo/Parte de Andres para el informe/nota_mantenimiento.md`
+(carpeta con espacios: va entre comillas en la consola) y lo sube a `main`. Tiene que decir, cada dato con el
+archivo de `evidencias/` que lo respalda:
+
+| Dato | Qué escribir | Evidencia |
+|---|---|---|
+| Base y fecha | Dónde se aplicó la acción (`foodstore` o `foodstore_restore_test`) y cuándo | `maintenance_salida.txt` |
+| Observación previa | Tablas con más tuplas muertas, `n_mod_since_analyze`, `last_autovacuum` y `last_autoanalyze` (los números de **su** servidor) | `health_check_salida_andres.txt` |
+| Parámetros de autovacuum | Valores que vio (umbral y factor) y el umbral calculado | `health_check_salida_andres.txt` |
+| Acción elegida | Cuál (`VACUUM`, `ANALYZE` o ninguna) y **por qué**, con los números que la justifican | `maintenance.sql` y su salida |
+| Resultado | Qué cambió en la observación posterior | `maintenance_salida.txt` |
+| Problema real, si lo hubo | Qué falló, cómo se detectó y cómo se resolvió. Si no hubo, escribir "no ocurrió" | su bitácora |
+| Uso de OpenCode | Qué parte asistió, qué prompt, qué devolvió, qué se corrigió y cómo se verificó antes de aceptarlo | su bitácora |
+
+Reglas de la nota: solo valores **observados**, nada estimado ni copiado de otro servidor, y si algo no ocurrió se
+escribe "no ocurrió". Si Andrés eligió el ensayo en `foodstore_restore_test`, la nota lo dice así: es un ensayo, no
+mantenimiento real. Después le avisa a Facundo que la nota está subida.
+
+**Paso 8. Revisión del informe**, cuando Facundo lo entregue: cada valor del informe tiene que tener su evidencia en
+`evidencias/` o en `datos_para_informe.md`, y el informe tiene que diferenciar **RPO** de **RTO**.
+
+**Paso 9. Bitácora personal (obligatoria para este equipo):** `bitacoras/bitacora_andres.md`, desde
+`Para Facundo y Andres/PLANTILLA_bitacora.md`. Qué tiene que tener, sección por sección, está en la sección 8 de este
+documento. Se escribe **a medida que se hace cada paso**, no al final de memoria.
+
+**Paso 10. Git:** rama `parte-3b-maintenance`, commits descriptivos (`feat(mantenimiento): ...`), Pull Request a
+`main`. Subir `maintenance.sql`, `evidencias/health_check_salida_andres.txt`, `evidencias/maintenance_salida.txt`, la
+nota para Facundo y la bitácora. **No subir** `backups/`, `logs/` ni ningún `.dump`. Avisarle a Mariano cuando esté.
+
+**Qué entrega Andrés:**
+- **A Mariano:** `maintenance.sql` en `main`, las dos salidas y su bitácora con la revisión del respaldo y del simulacro.
+- **A Facundo:** la nota `nota_mantenimiento.md` (paso 7).
+
+### Facundo — `informe_u6.pdf` (puede empezar ya)
+
+1. **Dejar el repo al día:** en GitHub Desktop, *Fetch origin* y *Pull origin*.
+2. **Leer** `Datos para Facundo/Parte de Mariano para el informe/datos_para_informe.md`. Ahí están todos los valores del
+   simulacro, cada uno con el archivo de `evidencias/` que lo respalda.
+3. **Armar `informe_u6.pdf` (una página como máximo)**, entregado como PDF. Tiene que incluir:
+   - fecha y hora del respaldo usado (2026-10-18 09:49:32, `foodstore_20261018_094932.dump`);
+   - tiempo total de restauración y validación (**RTO observado**) y **RPO observado**, **diferenciados**, junto con los
+     **previstos** (RPO hasta 24 h, RTO menos de 20 min);
+   - resultado de las validaciones de tablas y de las restricciones lógicas;
+   - **un problema real** encontrado (hubo dos: línea 43 del respaldo y línea 152 de la restauración);
+   - **una mejora concreta** (respaldar roles con `pg_dumpall --globals-only --no-role-passwords`);
+   - qué parte asistió OpenCode y cómo se verificó antes de aceptarla (sección 7 de `datos_para_informe.md`);
+   - la aclaración de que la consigna dice `cliente` y en esta base la tabla se llama `usuario`;
+   - como se hicieron dos corridas del simulacro, informar las dos y marcar cuál es la oficial.
+4. **No inventar valores:** los que no estén en `evidencias/` o en `datos_para_informe.md`, no van. Las filas de monitoreo
+   y mantenimiento de la tabla de OpenCode se dejan para la revisión conjunta con Mariano. **La nota de Andrés**
+   (`Datos para Facundo/Parte de Andres para el informe/nota_mantenimiento.md`) es el insumo de esa revisión: Facundo
+   la lee cuando llegue y, si se decide agregar el mantenimiento al informe, los valores salen de ahí. Si Andrés
+   todavía no la dejó, no se escribe nada de mantenimiento: se le pide.
+5. **Comprobar que entra en una página** al exportar el PDF. Si no entra, se resume (tablas compactas); no se achica la
+   letra hasta que no se lea.
+6. **Bitácora personal (obligatoria para este equipo):** `bitacoras/bitacora_facundo.md`, desde
+   `Para Facundo y Andres/PLANTILLA_bitacora.md`. Qué tiene que tener, sección por sección, está en la sección 8 de este
+   documento. Anotar lo que realmente pasó, incluido si usó una IA para redactar el informe y cómo revisó cada valor
+   contra la evidencia. Se escribe mientras se hace el informe, no al final.
+7. **Git:** rama `parte-5-informe`, commits descriptivos (`docs(informe): ...`), Pull Request a `main`. Subir
+   `informe_u6.pdf` y la bitácora. Avisarle a Mariano y a Andrés cuando esté.
+
+### Mariano: lo que queda (depende de los otros dos)
+
+1. **Revisar `maintenance.sql`** de Andrés: correrlo y validar que la acción esté justificada por lo observado.
+2. **Revisar el informe de Facundo** junto con él y decidir si se agrega algo del monitoreo (`health_check.sql`) y del
+   mantenimiento, y completar esas filas de la tabla de OpenCode si se decide agregarlas.
+3. **Corregir `datos_para_informe.md`, sección 7:** las filas de la tabla de OpenCode dicen que `health_check.sql` es de
+   Andrés y `maintenance.sql` de Facundo. Ahora `health_check.sql` es de Mariano (generado con Claude, no con
+   OpenCode) y `maintenance.sql` es de Andrés.
+4. **Unificar `BITACORA.md`**, comparando cada fila contra la evidencia, cuando lleguen las bitácoras de Andrés y Facundo.
+5. **Revisión final del repo antes de entregar:** sin contraseñas, sin `.dump` ni logs sin revisar, informe en PDF,
+   todos los entregables en `main`.
+
+### Reglas que valen para todos
+
+- Sin contraseñas en ningún archivo ni commit. `pgpass.conf` queda fuera del repo.
+- `foodstore` solo se lee salvo un `VACUUM` o `ANALYZE` común justificado; las pruebas destructivas van solo en
+  `foodstore_restore_test`.
+- El código de OpenCode se revisa y se ejecuta antes de aceptarse; en la bitácora se anota lo que realmente pasó,
+  incluso si OpenCode no se equivocó.
+- No abrir ni pegar `backups/*.dump` en ninguna IA.
+- Cada integrante tiene su propio PostgreSQL: no se asume que la configuración de otro servidor se hereda.
 
 ## 6. Revisión cruzada
 
 | Se revisa | Lo revisa | Cómo |
 |---|---|---|
-| `SPEC_U6.md` | Andrés y Facundo | Que sea implementable y que las condiciones de éxito se puedan comprobar |
+| `SPEC_U6.md` | Andrés | Que sea implementable y que las condiciones de éxito se puedan comprobar |
 | `backup_foodstore.ps1` | Andrés | Lo corre en su servidor y aplica la lista de revisión de `AGENTS.md` |
-| `health_check.sql` | Facundo | Lo corre en su servidor y confirma que sirve como observación previa |
+| `health_check.sql` | Andrés | Lo corre en su servidor; su salida es la observación previa de `maintenance.sql` |
 | `maintenance.sql` | Mariano | Lo corre y valida que la acción esté justificada por lo observado |
-| Simulacro y `restore_test.ps1` | Facundo | Lo repite en su servidor y compara contra la evidencia |
-| `informe_u6.pdf` | Andrés | Que cada valor del informe tenga evidencia en `evidencias/` |
+| Simulacro y `restore_test.ps1` | Andrés | Lo repite en su servidor y compara contra la evidencia |
+| `informe_u6.pdf` | Andrés y Mariano | Que cada valor del informe tenga evidencia en `evidencias/` y que RPO y RTO estén diferenciados |
 
 Cada revisor registra en su bitácora qué revisó y qué encontró. Si no encontró nada, también se anota.
 
 ## 7. Trabajo con Git
 
-- Una rama por parte: `parte-3a-health-check`, `parte-3b-maintenance`, `parte-5-informe` (Andrés y Facundo).
-  **Mariano decidió commitear sus partes (spec, respaldo, simulacro) directo en `main`**, que es la que usa.
-- Se mergea por Pull Request a `main`. La spec ya está en `main`: las ramas de Andrés y Facundo se crean a partir de ahí.
-- Mensajes de commit descriptivos: `feat(respaldo): ...`, `feat(monitoreo): ...`,
-  `feat(mantenimiento): ...`, `docs(informe): ...`. Un commit por entregable, y los arreglos con un mensaje
-  que diga qué se arregló.
+- Una rama por parte para Andrés y Facundo: `parte-3b-maintenance` y `parte-5-informe`. **Mariano commitea sus partes
+  directo en `main`**, que es la que usa.
+- Se mergea por Pull Request a `main`. Las ramas se crean a partir de `main` actualizada (*Fetch* y *Pull* antes).
+- Mensajes de commit descriptivos: `feat(mantenimiento): ...`, `docs(informe): ...`. Un commit por entregable, y los
+  arreglos con un mensaje que diga qué se arregló. Evitar mensajes como "arreglos" o "cambios".
 - Sin contraseñas, respaldos ni logs sin revisar en ningún commit.
 
-## 8. Bitácora
+## 8. Bitácora: qué tiene que hacer cada uno
 
-Aunque la consigna no la pide, la llevamos para poder volver a ver qué hicimos y por qué.
+La consigna no la pide, pero este equipo la lleva para poder volver a ver qué se hizo y por qué, y porque **Mariano
+unifica todas en `BITACORA.md`**. Si falta la de alguno, esa parte queda sin registro. **Andrés y Facundo tienen que
+hacer la suya.**
 
-- **Cada integrante arma la suya**, en `bitacoras/bitacora_<nombre>.md`, a partir de
-  `Para Facundo y Andres/PLANTILLA_bitacora.md`. Al ser archivos separados no hay conflictos al mergear.
-- **Al final, Mariano las unifica** en `BITACORA.md`, comparando cada fila contra la evidencia del repo.
-- Se anota lo que realmente pasó, incluidos los casos en que OpenCode **no** se equivocó. Las respuestas se
-  resumen; nunca se anotan contraseñas.
+**Cómo se empieza (los dos):**
+1. Copiar `Para Facundo y Andres/PLANTILLA_bitacora.md` a `bitacoras/bitacora_andres.md` o
+   `bitacoras/bitacora_facundo.md`, y poner el nombre en el título.
+2. Completar **solo lo que corresponde a su parte**; las secciones que no apliquen se dejan vacías o se borran.
+3. Escribirla **a medida que se trabaja**: cada paso, cuando se termina.
+4. Subirla en la misma rama que el resto de su trabajo (`parte-3b-maintenance` o `parte-5-informe`).
+
+**Reglas (valen para los dos):**
+- Se anota lo que **realmente pasó**. Si OpenCode no se equivocó, se escribe que no se equivocó.
+- Las respuestas de la IA se **resumen fielmente**: si dijo "potencial", no se anota "confirmado".
+- Nunca contraseñas ni datos que no deban estar en el repo.
+- Mariano compara cada fila contra la evidencia antes de unificar: lo que no tenga respaldo en `evidencias/` o en el
+  repo se corrige o se saca.
+
+**Qué va en cada sección de la plantilla:**
+
+| Sección | Andrés | Facundo |
+|---|---|---|
+| Mi parte | `maintenance.sql`, revisión cruzada del respaldo y del simulacro, revisión del informe | `informe_u6.pdf` |
+| Mi entorno (H0) | Versión de PostgreSQL, conteos de su `foodstore`, problemas al armarla | Solo si armó la base; si no, "no armé la base: el informe sale del repo" |
+| Interacciones con OpenCode | Prompt que le dio para `maintenance.sql`, qué devolvió, qué corrigió o aceptó y cómo lo verificó (ocho preguntas, ejecución) | Si usó una IA para redactar el informe: qué pidió, qué devolvió y cómo revisó cada valor. Si no usó ninguna, lo anota |
+| Revisión cruzada que hice | Respaldo y simulacro en **su** servidor, y el informe: qué revisó y qué encontró (si no encontró nada, también se anota) | La revisión del informe la hace Andrés; Facundo anota los cambios que le pidieron y qué hizo |
+| Mediciones | Estado de sus tablas (antes y después), RTO y RPO que midió en su servidor | Los valores del informe y de qué archivo salió cada uno |
+| Problemas encontrados | Fecha, problema, causa y solución | Ídem |
+| Decisiones tomadas | Qué acción de mantenimiento eligió y por qué (alternativas: ensayo, no actuar) | Qué incluyó y qué dejó fuera del informe, y por qué |
+
+**Cuándo se entrega:** apenas cada uno termina su parte, no al final de todo. Mariano no puede unificar `BITACORA.md`
+hasta que estén las de los dos.
