@@ -1,5 +1,11 @@
 # TP Unidad 6 - Food Store: mantenimiento, respaldo y recuperacion
 
+[![Repositorio en GitHub](https://img.shields.io/badge/GitHub-TP--Unidad6--BD2-181717?logo=github&logoColor=white)](https://github.com/marianoemir/TP-Unidad6-BD2)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%2B-336791?logo=postgresql&logoColor=white)
+![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)
+
+> 📦 **Repositorio del trabajo:** [github.com/marianoemir/TP-Unidad6-BD2](https://github.com/marianoemir/TP-Unidad6-BD2)
+
 Trabajo practico de Bases de Datos II (Tecnicatura Universitaria en Programacion, UTN FRM). Integra respaldo,
 monitoreo, mantenimiento y recuperacion sobre la base `foodstore` (PostgreSQL 16 o superior; probado en 17, Windows,
 PowerShell 5.1). Equipo: Mariano Chirino, Andres y Facundo.
