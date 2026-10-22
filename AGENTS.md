@@ -66,21 +66,12 @@ chequeo de salud diario (salida de `health_check.sql`), revisión de mantenimien
 TP-Unidad6-BD2/
 ├── SPEC_U6.md
 ├── backup_foodstore.ps1
-├── health_check.sql          (Andrés)
-├── maintenance.sql           (Facundo)
+├── health_check.sql          (Mariano, con Claude)
+├── maintenance.sql           (Andrés, con OpenCode; corregido y ejecutado por Mariano)
 ├── restore_test.ps1          (opcional; generado con OpenCode y revisado)
-├── informe_u6.pdf            (Facundo)
-├── evidencias/               salidas, tamaños, tiempos, copias de logs (respaldo, simulacro)
-├── Datos para Facundo/       insumos del informe
-│   └── Parte de Mariano para el informe/   completada por Mariano
-│       ├── datos_para_informe.md   datos del simulacro (solo valores observados)
-│       ├── error_sintaxis_backup.txt   salida del ParserError del respaldo (problema 1)
-│       └── error_restore_consola.txt   texto de consola del error de la linea 152 (problema 2)
-├── Para Facundo y Andres/    material de trabajo del equipo
-│   ├── DIVISION_DE_TRABAJO.md  quién hace qué y quién depende de quién
-│   └── PLANTILLA_bitacora.md   plantilla de la bitácora personal
-├── bitacoras/                una bitácora personal por integrante (se unifican al final)
-├── BITACORA.md               bitácora unificada (se arma al cerrar el trabajo)
+├── informe_u6.pdf            (Mariano)
+├── evidencias/               salidas, tamaños, tiempos, copias de logs (respaldo, simulacro, monitoreo, mantenimiento)
+├── BITACORA.md               bitácora unificada del equipo
 ├── base_heredada/            los 10 .sql de Food Store (U1–U4), sin modificar
 ├── AGENTS.md  README.md
 └── .kiro/steering/           contexto del proyecto
@@ -90,10 +81,6 @@ TP-Unidad6-BD2/
 entrega como copia en `evidencias/`. Si el aula limita el tamaño de los archivos, el `.dump`
 puede omitirse: en ese caso se incorpora evidencia de su creación, su tamaño y su restauración
 exitosa.
-
-Las carpetas `Datos para Facundo`, `Parte de Mariano para el informe` y `Para Facundo y Andres` tienen **espacios en el nombre**:
-entre comillas en la consola y con `-LiteralPath` en PowerShell. Los scripts solo usan
-`backups/` y `logs/`, así que no les afecta.
 
 ## Reglas Duras del Proyecto
 
@@ -126,8 +113,9 @@ Propias de la Unidad 6:
     `pg_restore --list` y, opcionalmente, guardar su huella SHA-256.
 11. **Restauración con `--no-owner --no-privileges`** vía `pg_restore`. Consecuencia que se
     documenta: los roles y permisos no vuelven (los roles son del servidor, no de la base).
-    `pg_dump` tampoco los respalda: se resguardan aparte con
-    `pg_dumpall --globals-only --no-role-passwords` (y las contraseñas se reasignan al restaurar).
+    `pg_dump` tampoco los respalda: la mejora propuesta es resguardarlos aparte con
+    `pg_dumpall --globals-only --no-role-passwords` (y reasignar las contraseñas al restaurar).
+    En este TP queda como propuesta: no se implementó ni se probó.
 12. **Sin `VACUUM FULL` como mantenimiento periódico** (reescribe la tabla y toma un bloqueo
     exclusivo). Un `VACUUM` o `ANALYZE` manual se justifica con la observación previa del estado de
     las tablas (`n_dead_tup`, `n_mod_since_analyze`, `last_autovacuum`, `last_autoanalyze`).

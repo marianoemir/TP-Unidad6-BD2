@@ -1,8 +1,8 @@
 # Bitácora — TP Unidad 6 (Food Store: mantenimiento, respaldo y recuperación)
 
 Registro unificado de lo que hicimos y por qué, para poder volver a consultarlo. La consigna no lo exige: lo llevamos
-nosotros. Cada integrante llevó su bitácora personal en `bitacoras/bitacora_<nombre>.md` y **Mariano las unificó acá**,
-comparando cada fila contra la evidencia del repo.
+nosotros. Cada integrante llevó su bitácora personal y **Mariano las unificó acá**, comparando cada fila contra la evidencia
+del repo. Las bitácoras personales ya no están en el repo: lo que importaba quedó en este archivo.
 
 Reglas de uso:
 - Se anota lo que realmente pasó. Si OpenCode no se equivocó, se escribe que no se equivocó.
@@ -15,7 +15,7 @@ Reglas de uso:
 | Herramienta | Quién | Para qué |
 |---|---|---|
 | OpenCode | Mariano, Andrés | Generar `backup_foodstore.ps1`, `restore_test.ps1` (Mariano) y `maintenance.sql` (Andrés) a partir de `SPEC_U6.md` y `AGENTS.md` |
-| Claude (claude.ai) | Mariano | Armar `SPEC_U6.md`, `AGENTS.md`, `DIVISION_DE_TRABAJO.md`, las plantillas y `health_check.sql`; preparar los prompts para OpenCode; revisar scripts con la lista de ocho preguntas; corregir `maintenance.sql`; armar `informe_u6.pdf` y esta bitácora; guiar los comandos paso a paso |
+| Claude (claude.ai) | Mariano | Armar `SPEC_U6.md`, `AGENTS.md` y `health_check.sql`; preparar los prompts para OpenCode; revisar scripts con la lista de ocho preguntas; corregir `maintenance.sql`; armar `informe_u6.pdf` y esta bitácora; guiar los comandos paso a paso |
 | pgAdmin 4, `psql`, `pg_dump`, `pg_restore` | Mariano, Andrés | Armar las bases, ejecutar los scripts y consultar |
 
 ## H0 — Entorno (cada integrante)
@@ -62,6 +62,7 @@ tuplas muertas tiene 1 (0,00 %) y `n_mod_since_analyze` es 0 en todas. Estado sa
 |---|---|---|
 | **Andrés · OpenCode:** estructurar `maintenance.sql` en cuatro fases siguiendo `SPEC_U6.md` y `AGENTS.md` (resumen del pedido, no el texto literal) | Script con ensayo en la base descartable, cálculo del umbral de autovacuum y `VACUUM (ANALYZE, VERBOSE)` sin bloques transaccionales | Ocho preguntas de `AGENTS.md`; ausencia de `BEGIN`/`COMMIT`. **La revisión no detectó** que las observaciones salían con retraso: se vio al leer la salida |
 | **Mariano · Claude:** revisar la entrega de Andrés (script, salidas, nota y bitácora) contra la consigna y la evidencia | Detectó que la salida contradecía lo afirmado (observación previa en 0 y posterior en 50.015 tuplas muertas) y que los textos tenían marcas de citas sueltas de otra herramienta de IA | Mariano comprobó la salida, aceptó agregar `pg_sleep(2)` y una observación base, y quitó `VERBOSE` (escribe en stderr y no aparece en el archivo de salida). Ejecutó la versión corregida el 2026-10-21 a las 21:59 |
+| **Mariano · Claude:** agregar a `maintenance.sql` una Fase 0 de solo lectura sobre `foodstore`, para que la decisión de mantener o no salga de la observación de toda la base real y no solo de la tabla `producto` | Fase 0 con una transacción `READ ONLY` que revisa todas las tablas contra los umbrales teóricos de autovacuum y autoanalyze y muestra una columna `decision`. Las fases 1 a 5 quedaron sin cambios, después de `\connect foodstore_restore_test` | No se pudo probar fuera del equipo: Mariano lo ejecutó el 2026-10-21 a las 22:54 y la salida salió sin errores (`maintenance_salida.txt`). Se comprobó que el `UPDATE` y el `VACUUM` estén después de la conexión a la base descartable |
 
 Observación y resultado (todos sobre `foodstore_restore_test`, tabla `producto`; umbral teórico de autovacuum
 50 + 0,2 × 50.016 = **10.053,2**):
@@ -70,7 +71,10 @@ Observación y resultado (todos sobre `foodstore_restore_test`, tabla `producto`
 |---|---|---|
 | Primera corrida de Andrés (21:04), observación "previa" | 0 | `maintenance_salida_corrida1_andres.txt` |
 | Primera corrida de Andrés (21:04), observación "posterior" | 50.015 (**al revés de lo esperado**) | ídem |
-| Corrida final de Mariano (21:59): base, previa a la acción, posterior | 0 → 50.015 → 0 | `maintenance_salida.txt` |
+| Primera corrida de la versión corregida de Mariano (21:59): base, previa a la acción, posterior | 0 → 50.015 → 0 | No se conserva como archivo: `maintenance_salida.txt` se reemplazó por la corrida siguiente |
+| Corrida final de Mariano con Fase 0 (22:54): base, previa a la acción, posterior | 0 → 50.015 → 0 | `maintenance_salida.txt` |
+
+La **Fase 0** observa `foodstore` (solo lectura) y concluye que no hay nada que justificar un `VACUUM` ni un `ANALYZE` manual ahí. La corrida de las 22:54 se hizo sobre la misma `foodstore_restore_test` de la corrida anterior, sin recrearla: por eso la Fase 1 ya muestra el `last_vacuum` de las 21:59. No cambia el resultado del ensayo.
 
 La acción es un **ensayo** (`UPDATE producto SET precio = precio WHERE eliminado = FALSE;` de 50.015 filas, y después
 `VACUUM (ANALYZE) producto;`), no mantenimiento real: `foodstore` estaba limpia.
@@ -92,11 +96,10 @@ conteos coincidentes y registros inválidos en cero. **No hay logs suyos adjunto
 
 | Prompt o pedido | Respuesta relevante recibida (resumida) | Validación o corrección humana aplicada |
 |---|---|---|
-| **Mariano · Claude:** armar `datos_para_informe.md` con las mediciones del simulacro y la transcripción del error de consola | Archivo con respaldo usado, dos corridas, RPO y RTO, validaciones, problemas, mejora propuesta y uso de OpenCode | Mariano comparó los valores contra `evidencias/` y quitó lo que no estaba respaldado por lo observado |
-| **Mariano · Claude:** armar `informe_u6.pdf` de una página desde `datos_para_informe.md` y las salidas de monitoreo y mantenimiento | PDF de una página con respaldo, RPO y RTO, validaciones, problema real, mejora y tabla de asistencia con IA. Comprobado el largo (una página) y el diseño | Mariano lo lee y lo compara contra `datos_para_informe.md` y `evidencias/` antes de subirlo |
+| **Mariano · Claude:** reunir las mediciones del simulacro y la transcripción del error de consola en un archivo de apoyo (`datos_para_informe.md`, retirado después del repo) | Archivo con respaldo usado, dos corridas, RPO y RTO, validaciones, problemas, mejora propuesta y uso de OpenCode | Mariano comparó los valores contra `evidencias/` y quitó lo que no estaba respaldado por lo observado |
+| **Mariano · Claude:** armar `informe_u6.pdf` de una página desde ese archivo de apoyo y las salidas de monitoreo y mantenimiento | PDF de una página con respaldo, RPO y RTO, validaciones, problema real, mejora y tabla de asistencia con IA. Comprobado el largo (una página) y el diseño | Mariano lo lee y lo compara contra `evidencias/` antes de subirlo |
 
-**Facundo:** sin registro propio en este TP. El informe y las partes de esta bitácora que le correspondían se elaboraron
-a partir de los datos de Mariano.
+**Facundo:** sin registro propio en este TP. El informe lo elaboró Mariano.
 
 ## Mediciones (valores observados, no estimados)
 
@@ -112,7 +115,8 @@ a partir de los datos de Mariano.
 | Rechazo del destino `foodstore` | `RESULTADO: ERROR - Base destino no permitida ('foodstore')`, código 1, sin tocar ninguna base | Consola y `evidencias/restore_log_rechazo.txt` | Mariano |
 | Estado de `foodstore` (monitoreo) | 136 MB; `n_dead_tup` máximo 1; `n_mod_since_analyze` 0; autovacuum activo con umbral 50 y factor 0,2 | `evidencias/health_check_salida.txt` | Mariano |
 | Estado de `foodstore` en el servidor de Andrés | 136 MB; `n_dead_tup` 0 en todas las tablas | `evidencias/health_check_salida_andres.txt` | Andrés |
-| Ensayo de mantenimiento | `n_dead_tup` 0 → 50.015 → 0 (umbral 10.053,2); `last_vacuum` y `last_analyze` de la hora de la corrida | `evidencias/maintenance_salida.txt` | Mariano (ejecución), Andrés (script original) |
+| Revisión de `foodstore` (Fase 0 de `maintenance.sql`) | Seis tablas (incluye la vista materializada `mv_facturacion_categoria_mes`), todas con decisión `sin accion`; el mayor `n_dead_tup` es 1 (`producto`), bajo su umbral de 10.053,2 | `evidencias/maintenance_salida.txt` | Mariano |
+| Ensayo de mantenimiento | `n_dead_tup` 0 → 50.015 → 0 (umbral 10.053,2); `last_vacuum` y `last_analyze` de la hora de la corrida (2026-10-21 22:54) | `evidencias/maintenance_salida.txt` | Mariano (ejecución), Andrés (script original) |
 
 ## Problemas encontrados y cómo se resolvieron
 
@@ -130,9 +134,11 @@ a partir de los datos de Mariano.
 |---|---|---|
 | Reparto inicial con la carga más pesada para Mariano (spec, respaldo, simulacro, README y bitácoras) | Un reparto parejo | Concentrar las partes que condicionan al resto |
 | El reparto se ajustó durante el trabajo: Mariano hizo `health_check.sql` y el informe, y Andrés hizo `maintenance.sql` | Mantener el reparto original | Cada parte se cerró con quien podía ejecutarla, y quedó documentado quién hizo qué |
-| Anotar los datos del simulacro en `Datos para Facundo/Parte de Mariano para el informe/datos_para_informe.md` | Repetir todo el simulacro para obtener los datos | Los valores solo salen de la ejecución de Mariano: el informe no estima nada |
+| Anotar los datos del simulacro en un archivo de apoyo (`datos_para_informe.md`, retirado después del repo) | Repetir todo el simulacro para obtener los datos | Los valores solo salen de la ejecución de Mariano: el informe no estima nada |
 | Cada integrante lleva su bitácora personal y se unifican al final | Un solo archivo compartido | Evitar conflictos al mergear |
 | Commitear la spec y las partes de Mariano directo en `main` | Una rama por parte | Es la rama que usa y las demás partes parten de ahí |
+| Agregar a `maintenance.sql` una Fase 0 de solo lectura sobre `foodstore` | Dejar solo el ensayo en `foodstore_restore_test` | La consigna pide justificar la acción con la observación previa del estado de las tablas: así la decisión sale de toda la base real, y el ensayo queda como demostración de una acción segura |
+| Retirar del repo `Datos para Facundo/`, `Para Facundo y Andres/` y `bitacoras/` | Dejarlas | Ya no hacían falta: el informe lo hizo Mariano y esta bitácora unificada reemplaza a las personales |
 | Guardar los conteos previos con `Out-File -Encoding ASCII` | Redirección con `>` | En PowerShell 5.1 `>` escribe UTF-16 |
 | Dos corridas del simulacro, informando las dos (la primera con el error, la segunda oficial) | Informar solo la corrida limpia | El error de la línea 152 es un problema real encontrado por la ejecución |
 | Mantener `restore_test.ps1` aunque la consigna lo marca como opcional | Restaurar a mano con los comandos de referencia | Hace repetible el simulacro, mide el RTO con un cronómetro único y se niega a actuar sobre `foodstore` |
@@ -145,13 +151,16 @@ a partir de los datos de Mariano.
 - **Ejecutar antes de confiar en la revisión:** tres errores (el `ParserError`, la línea 152 y el retraso de estadísticas) los
   encontró la ejecución y no la lectura con la lista de ocho preguntas. Conviene ejecutar y leer la salida
   apenas hay una primera versión.
-- **Leer la salida contra lo que se afirma:** la nota de mantenimiento decía algo que su propia salida contradecía.
+- **Leer la salida contra lo que se afirma:** la nota de mantenimiento de Andrés (ya retirada del repo) decía algo que su propia salida contradecía.
 - **Pedir evidencia adjunta en cada revisión cruzada**, para no tener afirmaciones que no se pueden comprobar.
 - **Cerrar el reparto y las fechas de entrega al principio**, y revisar a mitad de camino si cada parte avanza.
 - **Programar el respaldo** y probar la mejora propuesta (respaldar los roles con `pg_dumpall`), que quedó solo como propuesta.
 
 ## Historial de Git
 
-Hasta el 2026-10-18 el historial tiene un commit por entregable de Mariano (estructura preliminar, `SPEC_U6`, evidencias y
-simulacro, datos para el informe, ajustes), commiteados directo en `main`. Los commits posteriores (monitoreo, mantenimiento,
-informe y bitácoras) se suman sobre esos. Mantener un commit por entregable y mensajes que digan qué se hizo.
+Al 2026-10-21, `main` tenía 10 commits: 9 de Mariano y 1 de Andrés. Los de Mariano son un commit por entregable hasta el
+2026-10-18 (estructura preliminar, `SPEC_U6`, evidencias y simulacro, datos para el informe, ajustes), el monitoreo del
+2026-10-20 y el merge del Pull Request #1. Andrés sumó su parte desde su rama por ese Pull Request. Los cambios
+posteriores (corrección de `maintenance.sql`, informe, bitácora y limpieza del repo) se suman a ese historial. Algunos
+mensajes son poco descriptivos (por ejemplo, "fix rapido"). Para la próxima: un commit por entregable y mensajes que
+digan qué se hizo.

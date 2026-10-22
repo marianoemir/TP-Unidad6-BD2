@@ -3,10 +3,19 @@
 -- Proyecto: Food Store - Base de Datos II
 -- Motor: PostgreSQL 16 o superior
 --
--- BASE OBJETIVO: foodstore_restore_test (base descartable para ensayos).
--- Nunca ejecutar este ensayo contra la base 'foodstore'.
+-- QUE HACE ESTE SCRIPT
+--   FASE 0 (solo lectura, base 'foodstore'): revisa TODAS las tablas de la
+--          base real y decide, con la observacion previa, si hace falta
+--          VACUUM o ANALYZE manual.
+--   FASES 1 a 5 (base 'foodstore_restore_test'): ensayo de una accion de
+--          mantenimiento segura (VACUUM (ANALYZE)) en la base descartable.
 --
--- RESTRICCION: este script NO usa BEGIN/COMMIT. VACUUM no puede
+-- SEGURIDAD: sobre 'foodstore' este script solo ejecuta SELECT dentro de una
+-- transaccion READ ONLY. Todo lo que escribe (UPDATE, VACUUM) corre despues
+-- de conectarse a 'foodstore_restore_test'. Si esa base no existe, el script
+-- se detiene (ON_ERROR_STOP) y no hace nada mas.
+--
+-- RESTRICCION: las fases 1 a 5 no usan BEGIN/COMMIT. VACUUM no puede
 -- ejecutarse dentro de un bloque transaccional. Cada sentencia se
 -- ejecuta en autocommit.
 --
@@ -23,6 +32,57 @@
 
 \set ON_ERROR_STOP on
 
+-- ===================================================================
+-- FASE 0: Revision de la base real 'foodstore' (SOLO LECTURA)
+-- ===================================================================
+-- Para cada tabla se compara el estado actual contra los umbrales
+-- teoricos de autovacuum y autoanalyze (valores globales del servidor):
+--   umbral VACUUM  = autovacuum_vacuum_threshold  + autovacuum_vacuum_scale_factor  * n_live_tup
+--   umbral ANALYZE = autovacuum_analyze_threshold + autovacuum_analyze_scale_factor * n_live_tup
+-- Decision:
+--   n_dead_tup por encima del umbral de VACUUM            -> VACUUM recomendado
+--   n_mod_since_analyze por encima del umbral de ANALYZE  -> ANALYZE recomendado
+--   en otro caso                                          -> sin accion (el autovacuum alcanza)
+-- Si todas las filas dicen 'sin accion', no hay nada que justificar un
+-- VACUUM ni un ANALYZE manual sobre 'foodstore'. Los umbrales son
+-- teoricos: no se consideran ajustes por tabla (reloptions).
+\connect foodstore
+
+BEGIN TRANSACTION READ ONLY;
+
+SELECT 'FASE 0 - Revision de foodstore (solo lectura)' AS fase;
+
+WITH p AS (
+    SELECT current_setting('autovacuum_vacuum_threshold')::int          AS vac_umbral,
+           current_setting('autovacuum_vacuum_scale_factor')::numeric   AS vac_factor,
+           current_setting('autovacuum_analyze_threshold')::int         AS ana_umbral,
+           current_setting('autovacuum_analyze_scale_factor')::numeric  AS ana_factor
+)
+SELECT
+    s.relname                                                    AS tabla,
+    s.n_live_tup,
+    s.n_dead_tup,
+    p.vac_umbral + p.vac_factor * s.n_live_tup                   AS umbral_vacuum,
+    s.n_mod_since_analyze,
+    p.ana_umbral + p.ana_factor * s.n_live_tup                   AS umbral_analyze,
+    s.last_autovacuum,
+    s.last_autoanalyze,
+    CASE
+        WHEN s.n_dead_tup > p.vac_umbral + p.vac_factor * s.n_live_tup
+            THEN 'VACUUM recomendado'
+        WHEN s.n_mod_since_analyze > p.ana_umbral + p.ana_factor * s.n_live_tup
+            THEN 'ANALYZE recomendado'
+        ELSE 'sin accion'
+    END                                                          AS decision
+FROM pg_stat_user_tables s
+CROSS JOIN p
+ORDER BY s.n_dead_tup DESC, s.relname;
+
+COMMIT;
+
+-- ===================================================================
+-- A partir de aca, todo corre sobre la base descartable.
+-- ===================================================================
 \connect foodstore_restore_test
 
 -- ===================================================================
@@ -53,7 +113,7 @@ WHERE relname = 'producto';
 -- ===================================================================
 -- Actualizacion masiva sin cambios reales de valores sobre la tabla
 -- producto, para crear tuplas muertas en la base descartable. Es un
--- ENSAYO, no mantenimiento real: la base 'foodstore' no se toca.
+-- ENSAYO, no mantenimiento real: la base 'foodstore' no se modifica.
 -- La clausula WHERE eliminado = FALSE respeta el borrado logico del TP.
 UPDATE producto SET precio = precio WHERE eliminado = FALSE;
 
